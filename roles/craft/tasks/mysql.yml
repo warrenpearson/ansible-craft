@@ -21,6 +21,8 @@
 
 - name: Fix Craft issue with MySQL 5.7+
   blockinfile:
-      path: /etc/mysql/mysql.conf.d/mysqld.cnf
+      dest: /etc/mysql/mysql.conf.d/mysqld.cnf
       insertafter: EOF
-      content: "\ sql_mode = ''"
+      content: "sql_mode = ''"
+
+

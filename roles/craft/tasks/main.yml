@@ -19,6 +19,10 @@
   command: phpenmod mcrypt
 
 - service:
+    name: mysql
+    state: restarted
+
+- service:
     name: php7.1-fpm
     state: restarted
 
