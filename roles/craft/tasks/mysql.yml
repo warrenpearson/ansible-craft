@@ -11,10 +11,16 @@
 - name: Create craft database
   mysql_db: db=craft state=present
 
-- name: Set  mysql account and password
+- name: Set craft mysql account and password
   mysql_user:
       name: "{{ mysql_user }}"
       host: localhost
       password: "{{ mysql_pass }}"
       priv: 'craft.*:ALL'
       state: present
+
+- name: Fix Craft issue with MySQL 5.7+
+  blockinfile:
+      path: /etc/mysql/mysql.conf.d/mysqld.cnf
+      insertafter: EOF
+      content: "\ sql_mode = ''"
