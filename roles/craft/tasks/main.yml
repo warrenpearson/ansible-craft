@@ -4,20 +4,24 @@
   with_items:
     - git
     - unzip
+    - python-pip
 
-- tasks:
-    - include: mysql.yml 
-    - include: craft.yml
-    - include: nginx.yml
-    - include: php.yml
+- pip:
+     name: pip
+     state: latest
+
+- include: mysql.yml
+- include: craft.yml
+- include: nginx.yml
+- include: php.yml
 
 - name: Enable php mcrypt module
   command: phpenmod mcrypt
 
 - service:
-    name: nginx
+    name: php7.1-fpm
     state: restarted
 
 - service:
-    name: php7.1-fpm
+    name: nginx
     state: restarted

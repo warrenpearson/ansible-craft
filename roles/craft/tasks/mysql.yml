@@ -6,10 +6,15 @@
     - libmysqlclient-dev
 
 - pip: 
-  name: MySQL-python
-
-- name: Set  mysql account and password
-  mysql_user: name={{ mysql_user }} host=localhost password={{ mysql_pass }}
+      name: MySQL-python
 
 - name: Create craft database
   mysql_db: db=craft state=present
+
+- name: Set  mysql account and password
+  mysql_user:
+      name: "{{ mysql_user }}"
+      host: localhost
+      password: "{{ mysql_pass }}"
+      priv: 'craft.*:ALL'
+      state: present
