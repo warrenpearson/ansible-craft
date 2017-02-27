@@ -1,0 +1,105 @@
+---
+- name: Add Nginx Repository
+  apt_repository: 
+      repo='ppa:nginx/stable' 
+      state=present
+      update_cache=yes
+  register: ppastable
+
+- name: Install Nginx
+  apt: pkg=nginx state=installed update_cache=true
+  when: ppastable|success
+  register: nginxinstalled
+
+- name: Disable Default Site
+  when: nginxinstalled|success
+  file: dest=/etc/nginx/sites-enabled/default state=absent
+
+- name: Add PHP Repository
+  apt_repository: 
+      repo='ppa:ondrej/php' 
+      state=present
+      update_cache=yes
+  register: phpstable
+
+- name: Install PHP packages
+  apt: name={{item}} state=installed
+  with_items:
+    - php7.1
+    - php7.1-fpm
+    - php7.1-cli
+    - php7.1-common
+    - php7.1-curl
+    - php7.1-gd
+    - php7.1-mcrypt
+    - php7.1-mysql
+    - php7.1-mbstring
+
+- name: Install other required packages
+  apt: name={{item}} state=installed
+  with_items:
+    - git
+    - mysql-server
+    - libmysqlclient-dev
+    - unzip
+
+- pip: 
+  name: MySQL-python
+
+- name: Set  mysql account and password
+  mysql_user: name={{ mysql_user }} host=localhost password={{ mysql_pass }}
+
+- name: Create craft database
+  mysql_db: db=craft state=present
+
+- file:
+    path: /var/www/craft-cms
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: 0755
+
+- copy:
+    dest: /etc/nginx/conf.d/craft.conf
+    src: /etc/ansible/roles/craft/files/nginx.conf
+    owner: root
+    group: root
+    mode: 0644
+
+- unarchive:
+    src: https://download.craftcdn.com/craft/2.6/2.6.2962/Craft-2.6.2962.zip
+    dest: /var/www/craft-cms
+    remote_src: True
+    owner: www-data
+    group: www-data
+
+- file:
+    path: /var/www/craft-cms/craft
+    state: directory
+    owner: www-data
+    group: www-data
+    recurse: true
+    mode: 0755
+
+- file:
+    path: /var/www/craft-cms/public
+    state: directory
+    owner: www-data
+    group: www-data
+    recurse: true
+    mode: 0755
+
+- template:
+    src: "{{ role_path }}/templates/db.php"
+    dest: /var/www/craft-cms/craft/config/db.php
+
+- name: Enable php mcrypt module
+  command: phpenmod mcrypt
+
+- service:
+    name: nginx
+    state: restarted
+
+- service:
+    name: php7.1-fpm
+    state: restarted

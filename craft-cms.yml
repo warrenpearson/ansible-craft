@@ -1,0 +1,4 @@
+---
+- hosts: craft
+  roles:
+    - craft

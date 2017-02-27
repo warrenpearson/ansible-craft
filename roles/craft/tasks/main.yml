@@ -1,0 +1,23 @@
+---
+- name: Install required packages
+  apt: name={{item}} state=installed
+  with_items:
+    - git
+    - unzip
+
+- tasks:
+    - include: mysql.yml 
+    - include: craft.yml
+    - include: nginx.yml
+    - include: php.yml
+
+- name: Enable php mcrypt module
+  command: phpenmod mcrypt
+
+- service:
+    name: nginx
+    state: restarted
+
+- service:
+    name: php7.1-fpm
+    state: restarted

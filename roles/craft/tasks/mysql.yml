@@ -1,0 +1,15 @@
+---
+- name: Install MySQL packages
+  apt: name={{item}} state=installed
+  with_items:
+    - mysql-server
+    - libmysqlclient-dev
+
+- pip: 
+  name: MySQL-python
+
+- name: Set  mysql account and password
+  mysql_user: name={{ mysql_user }} host=localhost password={{ mysql_pass }}
+
+- name: Create craft database
+  mysql_db: db=craft state=present

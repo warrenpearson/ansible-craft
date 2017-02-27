@@ -1,0 +1,23 @@
+---
+- name: Add Nginx Repository
+  apt_repository: 
+      repo='ppa:nginx/stable' 
+      state=present
+      update_cache=yes
+  register: ppastable
+
+- name: Install Nginx
+  apt: pkg=nginx state=installed update_cache=true
+  when: ppastable|success
+  register: nginxinstalled
+
+- name: Disable Default Site
+  when: nginxinstalled|success
+  file: dest=/etc/nginx/sites-enabled/default state=absent
+
+- copy:
+    dest: /etc/nginx/conf.d/craft.conf
+    src: /etc/ansible/roles/craft/files/nginx.conf
+    owner: root
+    group: root
+    mode: 0644

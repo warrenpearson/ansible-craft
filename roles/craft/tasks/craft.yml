@@ -1,0 +1,34 @@
+---
+- file:
+    path: /var/www/craft-cms
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: 0755
+
+- unarchive:
+    src: https://download.craftcdn.com/craft/2.6/2.6.2962/Craft-2.6.2962.zip
+    dest: /var/www/craft-cms
+    remote_src: True
+    owner: www-data
+    group: www-data
+
+- file:
+    path: /var/www/craft-cms/craft
+    state: directory
+    owner: www-data
+    group: www-data
+    recurse: true
+    mode: 0755
+
+- file:
+    path: /var/www/craft-cms/public
+    state: directory
+    owner: www-data
+    group: www-data
+    recurse: true
+    mode: 0755
+
+- template:
+    src: "{{ role_path }}/templates/db.php"
+    dest: /var/www/craft-cms/craft/config/db.php
